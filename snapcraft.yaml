@@ -1,5 +1,5 @@
 name: darktable-kyrofa
-version: 2.0.6snap1
+version: 2.0.7snap1
 summary: Virtual lighttable and darkroom for photographers
 description: |
   Darktable is an open source photography workflow application and RAW
@@ -16,7 +16,7 @@ apps:
 parts:
   darktable:
     plugin: cmake
-    source: https://github.com/darktable-org/darktable/releases/download/release-2.0.6/darktable-2.0.6.tar.xz
+    source: https://github.com/darktable-org/darktable/releases/download/release-2.0.7/darktable-2.0.7.tar.xz
     configflags: [-DCMAKE_BUILD_TYPE=Release]
     build-packages:
       - gcc
