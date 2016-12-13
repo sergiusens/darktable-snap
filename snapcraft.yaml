@@ -1,5 +1,5 @@
 name: darktable-kyrofa
-version: 2.0.7snap2
+version: 2.0.7snap3
 summary: Virtual lighttable and darkroom for photographers
 description: |
   Darktable is an open source photography workflow application and RAW
@@ -11,7 +11,7 @@ confinement: strict
 apps:
   darktable:
     command: desktop-launch darktable --datadir $SNAP/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
-    plugs: [unity7, x11, gsettings, home]
+    plugs: [unity7, x11, gsettings, home, removable-media]
 
 parts:
   darktable:
