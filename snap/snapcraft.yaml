@@ -1,5 +1,5 @@
 name: darktable-kyrofa
-version: 2.0.7snap3
+version: 2.2.4snap1-rc1
 summary: Virtual lighttable and darkroom for photographers
 description: |
   Darktable is an open source photography workflow application and RAW
@@ -11,12 +11,13 @@ confinement: strict
 apps:
   darktable:
     command: desktop-launch darktable --datadir $SNAP/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
-    plugs: [unity7, x11, gsettings, home, removable-media]
+    plugs: [unity7, x11, opengl, gsettings, home, removable-media]
 
 parts:
   darktable:
     plugin: cmake
-    source: https://github.com/darktable-org/darktable/releases/download/release-2.0.7/darktable-2.0.7.tar.xz
+    source: https://github.com/darktable-org/darktable/releases/download/release-2.2.4/darktable-2.2.4.tar.xz
+    source-checksum: sha256/bd5445d6b81fc3288fb07362870e24bb0b5378cacad2c6e6602e32de676bf9d8
     configflags: [-DCMAKE_BUILD_TYPE=Release]
     build-packages:
       - gcc
@@ -36,4 +37,7 @@ parts:
       - libjson-glib-dev
       - libexiv2-dev
       - libpugixml-dev
-    after: [desktop/gtk3]
+    after: [desktop-gtk3]
+
+  desktop-gtk3:
+    prime: ['*']
