@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://avatars1.githubusercontent.com/u/29598503?v=3&s=256" alt="Darktable">
+  <img src="https://raw.githubusercontent.com/kyrofa/darktable-snap/master/snap/gui/logo.png" alt="Darktable">
   <br />
   Darktable
 </h1>
