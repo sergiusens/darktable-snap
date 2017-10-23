@@ -6,6 +6,8 @@ description: |
   developer. A virtual lighttable and darkroom for photographers. It manages
   your digital negatives in a database, lets you view them through a zoomable
   lighttable and enables you to develop raw images and enhance them.
+
+grade: stable
 confinement: strict
 
 apps:
@@ -37,6 +39,11 @@ parts:
       - libjson-glib-dev
       - libexiv2-dev
       - libpugixml-dev
+
+    # Stage the lensfun database used for lens correction
+    stage-packages:
+      - liblensfun-data
+
     after: [desktop-gtk3]
 
   desktop-gtk3:
