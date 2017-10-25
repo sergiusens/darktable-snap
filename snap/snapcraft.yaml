@@ -13,7 +13,16 @@ confinement: strict
 apps:
   darktable:
     command: desktop-launch darktable --datadir $SNAP/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
-    plugs: [unity7, x11, opengl, gsettings, home, removable-media]
+    plugs:
+      - unity7
+      - x11
+      - opengl
+      - gsettings
+      - home
+      - removable-media
+      - password-manager-service
+      - network
+      - network-bind
 
 parts:
   darktable:
@@ -39,6 +48,31 @@ parts:
       - libjson-glib-dev
       - libexiv2-dev
       - libpugixml-dev
+      - libsoup2.4-dev
+      - libopenexr-dev
+      - libwebp-dev
+      - libflickcurl-dev
+      - libopenjpeg-dev
+      - libopenjp2-7-dev
+      - libsecret-1-dev
+      - libgraphicsmagick1-dev
+      - libsdl1.2-dev
+      - libsdl-image1.2-dev
+      - libgl1-mesa-dev
+      - libosmgpsmap-1.0-dev
+
+      # Disabled capabilities for now due to interfaces:
+      #
+      # Camera detection/tethering/importing doesn't work, with no denials.
+      # Need to investigate further before enabling this.
+      # - libgphoto2-dev
+      #
+      # Need to test with cups-control interface
+      # - libcups2-dev
+
+      # No colord interface
+      # - libcolord-dev
+      # - libcolord-gtk-dev
 
     # Stage the lensfun database used for lens correction
     stage-packages:
