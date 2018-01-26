@@ -66,8 +66,8 @@ Keywords[sl]=grafika;fotografije;surove;
 Keywords[sq]=graphics;photography;raw;
 Keywords[sv]=grafik;fotografi;rå;
 
-Exec=darktable-kyrofa.darktable %U
-TryExec=darktable-kyrofa.darktable
+Exec=darktable %U
+TryExec=darktable
 Terminal=false
 StartupNotify=true
 
