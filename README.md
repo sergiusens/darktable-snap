@@ -15,7 +15,7 @@ distributions.</p>
 
 ## Install
 
-    sudo snap install darktable
+    sudo snap install darktable-kyrofa
 
 ([Don't have snapd installed?](https://snapcraft.io/docs/core/install))
 
@@ -25,11 +25,11 @@ distributions.</p>
 
 ## Run
 
-Simply search for Darktable in the dash. If you prefer the command-line, just run `darktable`.
+Simply search for Darktable in the dash. If you prefer the command-line, just run `darktable-kyrofa.darktable`.
 
 Note that the interface providing access to removable media (e.g. external
 hard drives, SD cards, etc.) is not automatically connected upon install. If
 you'd like to access removable media, you need to give the snap permission to
 do so by connecting that interface:
 
-    sudo snap connect darktable:removable-media
+    sudo snap connect darktable-kyrofa:removable-media
