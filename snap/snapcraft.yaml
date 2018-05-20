@@ -29,7 +29,9 @@ parts:
     plugin: cmake
     source: https://github.com/darktable-org/darktable/releases/download/release-2.4.3/darktable-2.4.3.tar.xz
     source-checksum: sha256/1dc5fc7bd142f4c74a5dd4706ac1dad772dfc7cd5538f033e60e3a08cfed03d3
-    configflags: [-DCMAKE_BUILD_TYPE=Release]
+    configflags:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DDONT_USE_INTERNAL_LUA=Off
     build-packages:
       - gcc
       - g++
