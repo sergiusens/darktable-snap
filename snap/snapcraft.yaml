@@ -1,5 +1,5 @@
 name: darktable
-version: 2.4.3snap1
+version: git
 summary: Virtual lighttable and darkroom for photographers
 description: |
   Darktable is an open source photography workflow application and RAW
@@ -31,7 +31,12 @@ parts:
     source-checksum: sha256/1dc5fc7bd142f4c74a5dd4706ac1dad772dfc7cd5538f033e60e3a08cfed03d3
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
+
+      # Support Lua scripts by way of internal Lua implementation
       - -DDONT_USE_INTERNAL_LUA=Off
+
+      # Don't overly optimize for build CPU-- stay generic
+      - -DBINARY_PACKAGE_BUILD=On
     build-packages:
       - gcc
       - g++
