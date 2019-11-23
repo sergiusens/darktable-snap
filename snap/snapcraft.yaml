@@ -9,15 +9,14 @@ description: |
 
 grade: stable
 confinement: strict
+base: core18
 
 apps:
   darktable:
-    command: desktop-launch darktable --datadir $SNAP/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
+    command: bin/darktable --datadir $SNAP/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
+    extensions: [gnome-3-28]
     plugs:
-      - unity7
-      - x11
       - opengl
-      - gsettings
       - home
       - removable-media
       - password-manager-service
@@ -59,7 +58,6 @@ parts:
       - libopenexr-dev
       - libwebp-dev
       - libflickcurl-dev
-      - libopenjpeg-dev
       - libopenjp2-7-dev
       - libsecret-1-dev
       - libgraphicsmagick1-dev
@@ -83,9 +81,16 @@ parts:
 
     # Stage the lensfun database used for lens correction
     stage-packages:
-      - liblensfun-data
-
-    after: [desktop-gtk3]
-
-  desktop-gtk3:
-    prime: ['*']
+      - libexiv2-14
+      - libflickcurl0
+      - libgomp1
+      - libgraphicsmagick-q16-3
+      - libilmbase12
+      - liblensfun1
+      - liblensfun-data-v1
+      - libopenexr22
+      - libopenjp2-7
+      - libosmgpsmap-1.0-1
+      - libpugixml1v5
+      - libwebpmux3
+      - libwmf0.2-7
