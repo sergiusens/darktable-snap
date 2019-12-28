@@ -13,7 +13,7 @@ base: core18
 
 apps:
   darktable:
-    command: bin/darktable --datadir $SNAP/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
+    command: bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
     extensions: [gnome-3-28]
     plugs:
       - opengl
@@ -36,6 +36,13 @@ parts:
 
       # Don't overly optimize for build CPU-- stay generic
       - -DBINARY_PACKAGE_BUILD=On
+
+    organize:
+      # Darktable uses a relative path to find the lensfun database, which is
+      # installed under usr/share, so the darktable data must be installed there
+      # as well
+      share: usr/share
+
     build-packages:
       - gcc
       - g++
