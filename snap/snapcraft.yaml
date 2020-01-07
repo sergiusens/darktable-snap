@@ -13,7 +13,7 @@ base: core18
 
 apps:
   darktable:
-    command: bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
+    command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
     extensions: [gnome-3-28]
     plugs:
       - opengl
@@ -31,17 +31,14 @@ parts:
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
 
+      # Place the data alongside that coming from stage-packages (e.g. the lensfun database)
+      - -DCMAKE_INSTALL_PREFIX=/usr
+
       # Support Lua scripts by way of internal Lua implementation
       - -DDONT_USE_INTERNAL_LUA=Off
 
       # Don't overly optimize for build CPU-- stay generic
       - -DBINARY_PACKAGE_BUILD=On
-
-    organize:
-      # Darktable uses a relative path to find the lensfun database, which is
-      # installed under usr/share, so the darktable data must be installed there
-      # as well
-      share: usr/share
 
     build-packages:
       - gcc
@@ -86,7 +83,6 @@ parts:
       # - libcolord-dev
       # - libcolord-gtk-dev
 
-    # Stage the lensfun database used for lens correction
     stage-packages:
       - libexiv2-14
       - libflickcurl0
