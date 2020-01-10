@@ -13,7 +13,7 @@ base: core18
 
 apps:
   darktable:
-    command: bin/darktable --datadir $SNAP/share/darktable --moduledir $SNAP/lib/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/share/locale
+    command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
     extensions: [gnome-3-28]
     plugs:
       - opengl
@@ -26,16 +26,20 @@ apps:
 parts:
   darktable:
     plugin: cmake
-    source: https://github.com/darktable-org/darktable/releases/download/release-2.6.3/darktable-2.6.3.tar.xz
-    source-checksum: sha256/a518999c8458472edfc04577026ce5047d74553052af0f52d10ba8ce601b78f0
+    source: https://github.com/darktable-org/darktable/releases/download/release-3.0.0/darktable-3.0.0.tar.xz
+    source-checksum: sha256/7195a5ff7ee95ab7c5a57e4e84f8c90cc4728b2c917359203c21293ab754c0db  
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
+
+      # Place the data alongside that coming from stage-packages (e.g. the lensfun database)
+      - -DCMAKE_INSTALL_PREFIX=/usr
 
       # Support Lua scripts by way of internal Lua implementation
       - -DDONT_USE_INTERNAL_LUA=Off
 
       # Don't overly optimize for build CPU-- stay generic
       - -DBINARY_PACKAGE_BUILD=On
+
     build-packages:
       - gcc
       - g++
@@ -79,7 +83,6 @@ parts:
       # - libcolord-dev
       # - libcolord-gtk-dev
 
-    # Stage the lensfun database used for lens correction
     stage-packages:
       - libexiv2-14
       - libflickcurl0
@@ -94,3 +97,4 @@ parts:
       - libpugixml1v5
       - libwebpmux3
       - libwmf0.2-7
+      - libsecret-1-0
