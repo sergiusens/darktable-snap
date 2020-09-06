@@ -29,8 +29,39 @@ apps:
       - network-bind
 
 parts:
+
+  lensfun:
+    plugin: cmake
+    source: https://github.com/lensfun/lensfun.git
+    source-commit: v0.3.2
+    configflags:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DBINARY_PACKAGE_BUILD=On
+
+    build-packages:
+      - python3
+      - libglib2.0-dev
+      - libpng-dev
+      - doxygen
+      - python3-docutils
+
+    override-build: |
+      snapcraftctl build
+      # run lensfun-update-data and update lens data
+      PYTHONPATH=/usr/lib/python3.6/site-packages/ lensfun-update-data
+      mv -v /var/lib/lensfun-updates/version_1/*.xml ${SNAPCRAFT_PART_INSTALL}/usr/share/lensfun/version_1
+      rm -rf /var/lib/lensfun-updates/version_1
+
+    override-stage: |
+      snapcraftctl stage
+      # not sure why this is needed? is ldconfig step missing?
+      cd "${SNAPCRAFT_STAGE}"/usr/lib && ln -sf x86_64-linux-gnu/liblensfun.so .
+
   darktable:
     plugin: cmake
+    after:
+      - lensfun
     source: https://github.com/darktable-org/darktable/releases/download/release-3.2.1/darktable-3.2.1.tar.xz
     source-checksum: sha256/6e3683ea88dc0a0271be7eca4fd594b9e46b1b7194847825a8d0a0c12bdeb90c
     configflags:
@@ -45,6 +76,11 @@ parts:
       # Don't overly optimize for build CPU-- stay generic
       - -DBINARY_PACKAGE_BUILD=On
 
+      # Not sure why staged data isn't available to CMAKE by default
+      # is there a better way to include this
+      - -DLensFun_INCLUDE_DIR=${SNAPCRAFT_STAGE}/usr/include/lensfun
+      - -DLensFun_LIBRARY=${SNAPCRAFT_STAGE}/usr/lib/liblensfun.so
+
     build-packages:
       - gcc
       - g++
@@ -53,7 +89,6 @@ parts:
       - libgtk-3-dev
       - libxml2-utils
       - libxml2-dev
-      - liblensfun-dev
       - librsvg2-dev
       - libsqlite3-dev
       - libcurl4-gnutls-dev
@@ -94,8 +129,6 @@ parts:
       - libgomp1
       - libgraphicsmagick-q16-3
       - libilmbase12
-      - liblensfun1
-      - liblensfun-data-v1
       - libopenexr22
       - libopenjp2-7
       - libosmgpsmap-1.0-1
