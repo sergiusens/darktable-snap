@@ -43,8 +43,6 @@ parts:
       - python3
       - libglib2.0-dev
       - libpng-dev
-      - doxygen
-      - python3-docutils
 
     override-build: |
       snapcraftctl build
