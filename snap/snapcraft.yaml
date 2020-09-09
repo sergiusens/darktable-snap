@@ -51,11 +51,6 @@ parts:
       mv -v /var/lib/lensfun-updates/version_1/*.xml ${SNAPCRAFT_PART_INSTALL}/usr/share/lensfun/version_1
       rm -rf /var/lib/lensfun-updates/version_1
 
-    override-stage: |
-      snapcraftctl stage
-      # not sure why this is needed? is ldconfig step missing?
-      cd "${SNAPCRAFT_STAGE}"/usr/lib && ln -sf x86_64-linux-gnu/liblensfun.so .
-
   darktable:
     plugin: cmake
     after:
@@ -74,10 +69,10 @@ parts:
       # Don't overly optimize for build CPU-- stay generic
       - -DBINARY_PACKAGE_BUILD=On
 
-      # Not sure why staged data isn't available to CMAKE by default
-      # is there a better way to include this
+      # Not sure why staged libs aren't available to CMAKE by default.
+      # Is there a better way to include this?
       - -DLensFun_INCLUDE_DIR=${SNAPCRAFT_STAGE}/usr/include/lensfun
-      - -DLensFun_LIBRARY=${SNAPCRAFT_STAGE}/usr/lib/liblensfun.so
+      - -DLensFun_LIBRARY=${SNAPCRAFT_STAGE}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/liblensfun.so
 
     build-packages:
       - gcc
