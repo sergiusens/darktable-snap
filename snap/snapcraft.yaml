@@ -19,6 +19,11 @@ layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2_port:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2_port
 
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+  - build-on: ppc64el
+
 apps:
   darktable:
     command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
