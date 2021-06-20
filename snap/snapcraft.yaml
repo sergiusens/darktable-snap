@@ -31,8 +31,8 @@ apps:
 parts:
   darktable:
     plugin: cmake
-    source: https://github.com/darktable-org/darktable/releases/download/release-3.2.1/darktable-3.2.1.tar.xz
-    source-checksum: sha256/6e3683ea88dc0a0271be7eca4fd594b9e46b1b7194847825a8d0a0c12bdeb90c
+    source: https://github.com/darktable-org/darktable/releases/download/release-3.4.1/darktable-3.4.1.tar.xz
+    source-checksum: sha256/7fc3f851da9bcd7c5053ecd09f21aa3eb6103be98a6c58f52010b6f22174941e
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
 
