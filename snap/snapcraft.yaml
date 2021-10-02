@@ -11,6 +11,14 @@ grade: stable
 confinement: strict
 base: core18
 
+layout:
+  /usr/lib/x86_64-linux-gnu/libgpm.so.2:
+    bind-file: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgpm.so
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2_port:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/libgphoto2_port
+
 architectures:
   - build-on: amd64
   - build-on: arm64
@@ -27,6 +35,10 @@ apps:
       - password-manager-service
       - network
       - network-bind
+      - raw-usb
+      - camera
+      - hardware-observe
+      - mount-observe
 
 parts:
   darktable:
@@ -79,7 +91,7 @@ parts:
       #
       # Camera detection/tethering/importing doesn't work, with no denials.
       # Need to investigate further before enabling this.
-      # - libgphoto2-dev
+      - libgphoto2-dev
       #
       # Need to test with cups-control interface
       # - libcups2-dev
@@ -103,3 +115,6 @@ parts:
       - libwebpmux3
       - libwmf0.2-7
       - libsecret-1-0
+      - libexif12
+      - libgphoto2-6
+      - libgphoto2-port12
