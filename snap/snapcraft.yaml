@@ -1,5 +1,5 @@
 name: darktable
-version: git
+version: 3.8.1
 summary: Virtual lighttable and darkroom for photographers
 description: |
   Darktable is an open source photography workflow application and RAW
@@ -9,17 +9,19 @@ description: |
 
 grade: stable
 confinement: strict
-base: core18
+base: core20
+compression: lzo
 
 architectures:
   - build-on: amd64
   - build-on: arm64
-  - build-on: ppc64el
 
 apps:
   darktable:
     command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
-    extensions: [gnome-3-28]
+    extensions: [gnome-3-38]
+    environment:
+      GTK_USE_PORTAL: 0
     plugs:
       - opengl
       - home
@@ -27,79 +29,134 @@ apps:
       - password-manager-service
       - network
       - network-bind
+  lesfun-update-data:
+    command: usr/bin/lensfun-update-data
+    environment:
+      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages
+    plugs:
+      - network
 
 parts:
-  darktable:
-    plugin: cmake
-    source: https://github.com/darktable-org/darktable/releases/download/release-3.4.1/darktable-3.4.1.tar.xz
-    source-checksum: sha256/7fc3f851da9bcd7c5053ecd09f21aa3eb6103be98a6c58f52010b6f22174941e
-    configflags:
-      - -DCMAKE_BUILD_TYPE=Release
+    darktable:
+        plugin: cmake
+        source: https://github.com/darktable-org/darktable/releases/download/release-$SNAPCRAFT_PROJECT_VERSION/darktable-$SNAPCRAFT_PROJECT_VERSION.tar.xz
+        source-checksum: sha256/81ee069054dbde580749b2d3a81cda01b7d169a82ba48731823f3ea560b2bef6
+        cmake-parameters:
+            - -DCMAKE_BUILD_TYPE=Release
+            # Place the data alongside that coming from stage-packages (e.g. the lensfun database)
+            - -DCMAKE_INSTALL_PREFIX=/usr
+            # Support Lua scripts by way of internal Lua implementation
+            - -DDONT_USE_INTERNAL_LUA=Off
+            # Don't overly optimize for build CPU-- stay generic
+            - -DBINARY_PACKAGE_BUILD=On
+            - -DCMAKE_FIND_ROOT_PATH="$SNAPCRAFT_STAGE;/snap/gnome-3-38-2004-sdk/current"
+            - -DCMAKE_VERBOSE_MAKEFILE=ON
+        stage-packages:
+            - libasn1-8-heimdal
+            - libcurl3-gnutls
+            - libgraphicsmagick-q16-3
+            - libgssapi3-heimdal
+            - libhcrypto4-heimdal
+            - libheimbase1-heimdal
+            - libheimntlm0-heimdal
+            - libhx509-5-heimdal
+            - libimage-exiftool-perl
+            - libkrb5-26-heimdal
+            - libldap-2.4-2
+            - liblensfun-bin
+            - liblensfun-data-v1
+            - liblensfun1
+            - libnghttp2-14
+            - libopenexr24
+            - libpugixml1v5
+            - libroken18-heimdal
+            - librtmp1
+            - libsasl2-2
+            - libssh-4
+            - libwind0-heimdal
+        build-packages:
+            - intltool
+            - libgraphicsmagick1-dev
+            - liblensfun-dev
+            - libopenexr-dev
+            - libpugixml-dev
+            - libsm-dev
+            - libxml2-utils
+            - libxrandr-dev
+            - pkg-config
+            - xsltproc
+            # -- Missing jsonschema, problems in noiseprofiles.json might go unnoticed
+            # -- GMIC not found
 
-      # Place the data alongside that coming from stage-packages (e.g. the lensfun database)
-      - -DCMAKE_INSTALL_PREFIX=/usr
+            # Disabled capabilities for now due to interfaces:
+            #
+            # Camera detection/tethering/importing doesn't work, with no denials.
+            # Need to investigate further before enabling this.
+            # - libgphoto2-dev
+            #
+            # Need to test with cups-control interface
+            # - libcups2-dev
 
-      # Support Lua scripts by way of internal Lua implementation
-      - -DDONT_USE_INTERNAL_LUA=Off
+            # No colord interface
+            # - libcolord-dev
+            # - libcolord-gtk-dev
 
-      # Don't overly optimize for build CPU-- stay generic
-      - -DBINARY_PACKAGE_BUILD=On
+        # stage-packages:
+            # - libilmbase24
+            # - libopenexr24
+            # - libpugixml1v5
 
-    build-packages:
-      - gcc
-      - g++
-      - intltool
-      - xsltproc
-      - libgtk-3-dev
-      - libxml2-utils
-      - libxml2-dev
-      - liblensfun-dev
-      - librsvg2-dev
-      - libsqlite3-dev
-      - libcurl4-gnutls-dev
-      - libjpeg-dev
-      - libtiff5-dev
-      - liblcms2-dev
-      - libjson-glib-dev
-      - libexiv2-dev
-      - libpugixml-dev
-      - libsoup2.4-dev
-      - libopenexr-dev
-      - libwebp-dev
-      - libflickcurl-dev
-      - libopenjp2-7-dev
-      - libsecret-1-dev
-      - libgraphicsmagick1-dev
-      - libsdl1.2-dev
-      - libsdl-image1.2-dev
-      - libgl1-mesa-dev
-      - libosmgpsmap-1.0-dev
+        build-environment:
+            - LDFLAGS: "$LDFLAGS $(pkg-config --libs gtk+-3.0) $(pkg-config --libs sdl2)"
+            - CFLAGS: "$CFLAGS $(pkg-config --cflags sdl2)"
+            - CXXFLAGS: "$CXXFLAGS $(pkg-config --cflags sdl2)"
 
-      # Disabled capabilities for now due to interfaces:
-      #
-      # Camera detection/tethering/importing doesn't work, with no denials.
-      # Need to investigate further before enabling this.
-      # - libgphoto2-dev
-      #
-      # Need to test with cups-control interface
-      # - libcups2-dev
+        override-build: |
+          snapcraftctl build
+          PYTHONPATH=$SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages $SNAPCRAFT_PART_INSTALL/usr/bin/lensfun-update-data || echo No updates
+          if [ -d /var/lib/lensfun-updates/version_1/]; then
+            cp /var/lib/lensfun-updates/version_1/* $SNAPCRAFT_PART_INSTALL/usr/share/lensfun/version_1/
+          fi
 
-      # No colord interface
-      # - libcolord-dev
-      # - libcolord-gtk-dev
+        after:
+            - exiv2
+            - osmgpsmap
+            - sdl
 
-    stage-packages:
-      - libexiv2-14
-      - libflickcurl0
-      - libgomp1
-      - libgraphicsmagick-q16-3
-      - libilmbase12
-      - liblensfun1
-      - liblensfun-data-v1
-      - libopenexr22
-      - libopenjp2-7
-      - libosmgpsmap-1.0-1
-      - libpugixml1v5
-      - libwebpmux3
-      - libwmf0.2-7
-      - libsecret-1-0
+    exiv2:
+        source: https://github.com/Exiv2/exiv2/releases/download/v0.27.5/exiv2-0.27.5-Source.tar.gz
+        source-checksum: sha256/35a58618ab236a901ca4928b0ad8b31007ebdc0386d904409d825024e45ea6e2
+        plugin: cmake
+        cmake-parameters:
+            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_INSTALL_PREFIX=/usr
+            - -DBUILD_STATIC=OFF
+            - -DEXIV2_ENABLE_BMFF=ON
+            - -DEXIV2_ENABLE_XMP=ON
+            - -DEXIV2_ENABLE_PNG=ON
+            - -DEXIV2_ENABLE_NLS=ON
+            - -DEXIV2_ENABLE_WEBREADY=ON
+        build-packages:
+            - libcurl4-gnutls-dev
+            - libssl-dev
+            - zlib1g-dev
+
+    osmgpsmap:
+        source: https://github.com/nzjrs/osm-gps-map/releases/download/1.2.0/osm-gps-map-1.2.0.tar.gz
+        source-checksum: sha256/ddec11449f37b5dffb4bca134d024623897c6140af1f9981a8acc512dbf6a7a5
+        plugin: autotools
+        autotools-configure-parameters:
+            - --prefix=/usr
+            - --enable-introspection=no
+        build-packages:
+            - libcurl4-gnutls-dev
+            - libssl-dev
+            - libsoup2.4-dev
+
+    sdl:
+        source: https://libsdl.org/release/SDL2-2.0.16.tar.gz
+        source-checksum: sha256/65be9ff6004034b5b2ce9927b5a4db1814930f169c4b2dae0a1e4697075f287b
+        plugin: autotools
+        autotools-configure-parameters:
+            - --prefix=/usr
+
