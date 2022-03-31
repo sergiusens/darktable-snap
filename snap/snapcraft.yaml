@@ -35,6 +35,13 @@ apps:
       PYTHONPATH: $SNAP/usr/lib/python3/dist-packages
     plugs:
       - network
+
+slots:
+    session-dbus-interface:
+        interface: dbus
+        name: org.darktable.service
+        bus: session
+
 layout:
   /usr/include/clc:
     bind: $SNAP/usr/include/clc
