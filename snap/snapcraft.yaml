@@ -35,8 +35,23 @@ apps:
       PYTHONPATH: $SNAP/usr/lib/python3/dist-packages
     plugs:
       - network
+layout:
+  /usr/include/clc:
+    bind: $SNAP/usr/include/clc
+  /usr/lib/clc:
+    bind: $SNAP/usr/lib/clc
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gallium-pipe:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gallium-pipe
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/intel-opencl:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/intel-opencl
 
 parts:
+    opencl:
+        plugin: nil
+        stage-packages:
+            - intel-opencl-icd
+            - mesa-opencl-icd
+            - ocl-icd-libopencl1
     darktable:
         plugin: cmake
         source: https://github.com/darktable-org/darktable/releases/download/release-$SNAPCRAFT_PROJECT_VERSION/darktable-$SNAPCRAFT_PROJECT_VERSION.tar.xz
