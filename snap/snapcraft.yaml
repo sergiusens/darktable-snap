@@ -56,9 +56,10 @@ parts:
     opencl:
         plugin: nil
         stage-packages:
-            - intel-opencl-icd
             - mesa-opencl-icd
             - ocl-icd-libopencl1
+            - on amd64:
+                - intel-opencl-icd
     darktable:
         plugin: cmake
         source: https://github.com/darktable-org/darktable/releases/download/release-$SNAPCRAFT_PROJECT_VERSION/darktable-$SNAPCRAFT_PROJECT_VERSION.tar.xz
