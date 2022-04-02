@@ -22,6 +22,7 @@ apps:
     extensions: [gnome-3-38]
     environment:
       GTK_USE_PORTAL: 0
+      DISABLE_WAYLAND: 1
     plugs:
       - opengl
       - home
