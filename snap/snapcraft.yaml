@@ -1,5 +1,5 @@
 name: darktable
-version: 3.8.1
+version: 4.0.0
 summary: Virtual lighttable and darkroom for photographers
 description: |
   Darktable is an open source photography workflow application and RAW
@@ -9,7 +9,7 @@ description: |
 
 grade: stable
 confinement: strict
-base: core20
+base: core22
 compression: lzo
 
 architectures:
@@ -19,7 +19,7 @@ architectures:
 apps:
   darktable:
     command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
-    extensions: [gnome-3-38]
+    extensions: [gnome]
     environment:
       GTK_USE_PORTAL: 0
       DISABLE_WAYLAND: 1
@@ -53,6 +53,10 @@ layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/intel-opencl:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/intel-opencl
 
+build-packages:
+    - gcc-12
+    - g++-12
+
 parts:
     opencl:
         plugin: nil
@@ -64,34 +68,37 @@ parts:
     darktable:
         plugin: cmake
         source: https://github.com/darktable-org/darktable/releases/download/release-$SNAPCRAFT_PROJECT_VERSION/darktable-$SNAPCRAFT_PROJECT_VERSION.tar.xz
-        source-checksum: sha256/81ee069054dbde580749b2d3a81cda01b7d169a82ba48731823f3ea560b2bef6
+        source-checksum: sha256/1416f8f59717e65a6220541aaa12eacca93888ce5176f2c9ab6c17b9cc53cc2d
         cmake-parameters:
-            - -DCMAKE_BUILD_TYPE=Release
+            - -DCMAKE_BUILD_TYPE=RelWithDebInfo
             # Place the data alongside that coming from stage-packages (e.g. the lensfun database)
             - -DCMAKE_INSTALL_PREFIX=/usr
             # Support Lua scripts by way of internal Lua implementation
-            - -DDONT_USE_INTERNAL_LUA=Off
+            - -DDONT_USE_INTERNAL_LUA=OFF
             # Don't overly optimize for build CPU-- stay generic
-            - -DBINARY_PACKAGE_BUILD=On
-            - -DCMAKE_FIND_ROOT_PATH="$SNAPCRAFT_STAGE;/snap/gnome-3-38-2004-sdk/current"
+            - -DBINARY_PACKAGE_BUILD=ON
+            - -DCMAKE_FIND_ROOT_PATH="$SNAPCRAFT_STAGE;/snap/gnome-42-2204-sdk/current"
             - -DCMAKE_VERBOSE_MAKEFILE=ON
         stage-packages:
             - libasn1-8-heimdal
+            - libavif13
             - libcurl3-gnutls
+            - libexiv2-27
             - libgraphicsmagick-q16-3
             - libgssapi3-heimdal
+            - libheif1
             - libhcrypto4-heimdal
             - libheimbase1-heimdal
             - libheimntlm0-heimdal
             - libhx509-5-heimdal
             - libimage-exiftool-perl
             - libkrb5-26-heimdal
-            - libldap-2.4-2
+            - libgphoto2-6
+            - libldap-2.5-0
             - liblensfun-bin
             - liblensfun-data-v1
             - liblensfun1
             - libnghttp2-14
-            - libopenexr24
             - libpugixml1v5
             - libroken18-heimdal
             - librtmp1
@@ -100,13 +107,19 @@ parts:
             - libwind0-heimdal
         build-packages:
             - intltool
+            - libavif-dev
+            - libexiv2-dev
             - libgraphicsmagick1-dev
+            - libheif-dev
             - liblensfun-dev
-            - libopenexr-dev
+            - libgphoto2-dev
             - libpugixml-dev
+            - libsdl2-dev
             - libsm-dev
             - libxml2-utils
             - libxrandr-dev
+            - ninja-build
+            - patch
             - pkg-config
             - xsltproc
             # -- Missing jsonschema, problems in noiseprofiles.json might go unnoticed
@@ -131,10 +144,16 @@ parts:
             # - libpugixml1v5
 
         build-environment:
-            - LDFLAGS: "$LDFLAGS $(pkg-config --libs gtk+-3.0) $(pkg-config --libs sdl2)"
-            - CFLAGS: "$CFLAGS $(pkg-config --cflags sdl2)"
-            - CXXFLAGS: "$CXXFLAGS $(pkg-config --cflags sdl2)"
+            - LDFLAGS: "-L${CRAFT_STAGE}/usr/lib/${CRAFT_ARCH_TRIPLET} $(pkg-config --libs sdl2 harfbuzz gtk+-3.0 OpenEXR)"
+            - CC: /usr/bin/gcc-12
+            - CFLAGS: "-O3 $(pkg-config --cflags sdl2 harfbuzz OpenEXR)"
+            - CXX: /usr/bin/g++-12
+            - CXXFLAGS: "-O3 $(pkg-config --cflags sdl2 harfbuzz OpenEXR)"
 
+        override-pull: |
+          craftctl default
+          patch -p0 < "${SNAPCRAFT_PROJECT_DIR}/snap/local/patches/darktable-math_h.patch"
+          patch -p0 < "${SNAPCRAFT_PROJECT_DIR}/snap/local/patches/darktable-lens_cc.patch"
         override-build: |
           snapcraftctl build
           PYTHONPATH=$SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages $SNAPCRAFT_PART_INSTALL/usr/bin/lensfun-update-data || echo No updates
@@ -143,27 +162,24 @@ parts:
           fi
 
         after:
-            - exiv2
+            - openexr
             - osmgpsmap
-            - sdl
 
-    exiv2:
-        source: https://github.com/Exiv2/exiv2/releases/download/v0.27.5/exiv2-0.27.5-Source.tar.gz
-        source-checksum: sha256/35a58618ab236a901ca4928b0ad8b31007ebdc0386d904409d825024e45ea6e2
+    openexr:
+        source: https://github.com/AcademySoftwareFoundation/openexr/archive/refs/tags/v3.1.3.tar.gz
+        source-checksum: sha256/6f70a624d1321319d8269a911c4032f24950cde52e76f46e9ecbebfcb762f28c
         plugin: cmake
         cmake-parameters:
-            - -DCMAKE_BUILD_TYPE=Release
             - -DCMAKE_INSTALL_PREFIX=/usr
-            - -DBUILD_STATIC=OFF
-            - -DEXIV2_ENABLE_BMFF=ON
-            - -DEXIV2_ENABLE_XMP=ON
-            - -DEXIV2_ENABLE_PNG=ON
-            - -DEXIV2_ENABLE_NLS=ON
-            - -DEXIV2_ENABLE_WEBREADY=ON
-        build-packages:
-            - libcurl4-gnutls-dev
-            - libssl-dev
-            - zlib1g-dev
+            - -DDOCS=OFF
+            - -DOPENEXR_INSTALL_EXAMPLES=OFF
+            - -DOPENEXR_BUILD_TOOLS=OFF
+            - -DOPENEXR_INSTALL_TOOLS=OFF
+        build-environment:
+            - CC: /usr/bin/gcc-12
+            - CFLAGS: "-O3"
+            - CXX: /usr/bin/g++-12
+            - CXXFLAGS: "-O3"
 
     osmgpsmap:
         source: https://github.com/nzjrs/osm-gps-map/releases/download/1.2.0/osm-gps-map-1.2.0.tar.gz
@@ -176,11 +192,9 @@ parts:
             - libcurl4-gnutls-dev
             - libssl-dev
             - libsoup2.4-dev
-
-    sdl:
-        source: https://libsdl.org/release/SDL2-2.0.16.tar.gz
-        source-checksum: sha256/65be9ff6004034b5b2ce9927b5a4db1814930f169c4b2dae0a1e4697075f287b
-        plugin: autotools
-        autotools-configure-parameters:
-            - --prefix=/usr
+        build-environment:
+            - CC: /usr/bin/gcc-12
+            - CFLAGS: "-O3"
+            - CXX: /usr/bin/g++-12
+            - CXXFLAGS: "-O3"
 
