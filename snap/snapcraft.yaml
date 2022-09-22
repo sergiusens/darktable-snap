@@ -1,5 +1,5 @@
 name: darktable
-version: 4.0.0
+version: 4.0.1
 summary: Virtual lighttable and darkroom for photographers
 description: |
   Darktable is an open source photography workflow application and RAW
@@ -68,7 +68,7 @@ parts:
     darktable:
         plugin: cmake
         source: https://github.com/darktable-org/darktable/releases/download/release-$SNAPCRAFT_PROJECT_VERSION/darktable-$SNAPCRAFT_PROJECT_VERSION.tar.xz
-        source-checksum: sha256/1416f8f59717e65a6220541aaa12eacca93888ce5176f2c9ab6c17b9cc53cc2d
+        source-checksum: sha256/5fef81e0c0079977a3cdc3627eed777280c2346d023c5d176c1f4a62cbe51d68
         cmake-parameters:
             - -DCMAKE_BUILD_TYPE=RelWithDebInfo
             # Place the data alongside that coming from stage-packages (e.g. the lensfun database)
