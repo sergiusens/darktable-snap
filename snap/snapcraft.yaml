@@ -30,6 +30,20 @@ apps:
       - password-manager-service
       - network
       - network-bind
+  cli:
+    command: usr/bin/darktable-cli --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
+    extensions: [gnome]
+    environment:
+      GTK_USE_PORTAL: 0
+      DISABLE_WAYLAND: 1
+    plugs:
+      - opengl
+      - home
+      - removable-media
+      - password-manager-service
+      - network
+      - network-bind
+
   lesfun-update-data:
     command: usr/bin/lensfun-update-data
     environment:
