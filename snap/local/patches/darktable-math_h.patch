@@ -1,38 +1,18 @@
---- src/common/math.h.orig	2022-07-07 14:58:48.536231098 +0000
-+++ src/common/math.h	2022-07-07 15:46:45.626547936 +0000
-@@ -19,7 +19,11 @@
+--- src/common/math.h.orig	2023-06-03 17:01:51.238602352 +0000
++++ src/common/math.h	2023-06-03 23:10:56.501521879 +0000
+@@ -19,7 +19,15 @@
  #pragma once
  
  #include <stddef.h>
 +#ifdef __cplusplus
 +#include <cmath>
++using std::isnan;
++using std::isinf;
++using std::isfinite;
++using std::isnormal;
 +#else
  #include <math.h>
 +#endif
  #include <stdint.h>
- #ifdef __SSE__
- #include <xmmintrin.h>
-@@ -247,7 +251,11 @@
- static inline void downscale_vector(dt_aligned_pixel_t vector, const float scaling)
- {
-   // check zero or NaN
-+#ifdef __cplusplus
-+  const int valid = (scaling > NORM_MIN) && !std::isnan(scaling);
-+#else
-   const int valid = (scaling > NORM_MIN) && !isnan(scaling);
-+#endif
-   for(size_t c = 0; c < 3; c++) vector[c] = (valid) ? vector[c] / (scaling + NORM_MIN) : vector[c] / NORM_MIN;
- }
- 
-@@ -257,7 +265,11 @@
- #endif
- static inline void upscale_vector(dt_aligned_pixel_t vector, const float scaling)
- {
-+#ifdef __cplusplus
-+  const int valid = (scaling > NORM_MIN) && !std::isnan(scaling);
-+#else
-   const int valid = (scaling > NORM_MIN) && !isnan(scaling);
-+#endif
-   for(size_t c = 0; c < 3; c++) vector[c] = (valid) ? vector[c] * (scaling + NORM_MIN) : vector[c] * NORM_MIN;
- }
+ #include "common/sse.h"		// also includes darktable.h
  

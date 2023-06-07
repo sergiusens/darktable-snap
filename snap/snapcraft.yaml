@@ -1,11 +1,5 @@
 name: darktable
-version: 4.2.1
-summary: Virtual lighttable and darkroom for photographers
-description: |
-  Darktable is an open source photography workflow application and RAW
-  developer. A virtual lighttable and darkroom for photographers. It manages
-  your digital negatives in a database, lets you view them through a zoomable
-  lighttable and enables you to develop raw images and enhance them.
+adopt-info: darktable
 
 grade: stable
 confinement: strict
@@ -18,7 +12,7 @@ architectures:
 
 apps:
   darktable:
-    command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
+    command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
     extensions: [gnome]
     environment:
       GTK_USE_PORTAL: 0
@@ -32,7 +26,7 @@ apps:
       - network-bind
       - network-status
   cli:
-    command: usr/bin/darktable-cli --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
+    command: usr/bin/darktable-cli --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
     extensions: [gnome]
     environment:
       GTK_USE_PORTAL: 0
@@ -63,10 +57,12 @@ layout:
     bind: $SNAP/usr/include/clc
   /usr/lib/clc:
     bind: $SNAP/usr/lib/clc
-  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gallium-pipe:
+  /usr/lib/$CRAFT_ARCH_TRIPLET/gallium-pipe:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gallium-pipe
-  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/intel-opencl:
-    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/intel-opencl
+  /usr/lib/$CRAFT_ARCH_TRIPLET/intel-opencl:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/intel-opencl
+  /usr/share/git-core/templates:
+    bind: $SNAP/usr/share/git-core/templates
 
 build-packages:
     - gcc-12
@@ -82,8 +78,7 @@ parts:
                 - intel-opencl-icd
     darktable:
         plugin: cmake
-        source: https://github.com/darktable-org/darktable/releases/download/release-$SNAPCRAFT_PROJECT_VERSION/darktable-$SNAPCRAFT_PROJECT_VERSION.tar.xz
-        source-checksum: sha256/603a39c6074291a601f7feb16ebb453fd0c5b02a6f5d3c7ab6db612eadc97bac
+        source: https://github.com/darktable-org/darktable.git
         cmake-parameters:
             - -DCMAKE_BUILD_TYPE=RelWithDebInfo
             # Place the data alongside that coming from stage-packages (e.g. the lensfun database)
@@ -92,9 +87,15 @@ parts:
             - -DDONT_USE_INTERNAL_LUA=OFF
             # Don't overly optimize for build CPU-- stay generic
             - -DBINARY_PACKAGE_BUILD=ON
-            - -DCMAKE_FIND_ROOT_PATH="$SNAPCRAFT_STAGE;/snap/gnome-42-2204-sdk/current"
+            - -DCMAKE_INCLUDE_SYSTEM_FLAG_C="isystem"
+            - -DCMAKE_INCLUDE_SYSTEM_FLAG_CXX="isystem"
+            - -DCMAKE_SYSTEM_PREFIX_PATH="${CRAFT_STAGE}/usr;/snap/gnome-42-2204-sdk/current/usr/;/usr"
             - -DCMAKE_VERBOSE_MAKEFILE=ON
+            - -DCMAKE_CXX_FLAGS="-Wno-deprecated-register"
+        parse-info:
+          - usr/share/metainfo/org.darktable.darktable.appdata.xml
         stage-packages:
+            - git
             - libasn1-8-heimdal
             - libavif13
             - libcurl3-gnutls
@@ -161,21 +162,19 @@ parts:
         build-environment:
             - LDFLAGS: "-L${CRAFT_STAGE}/usr/lib/${CRAFT_ARCH_TRIPLET} $(pkg-config --libs sdl2 harfbuzz gtk+-3.0 OpenEXR)"
             - CC: /usr/bin/gcc-12
-            - CFLAGS: "-O3 $(pkg-config --cflags sdl2 harfbuzz OpenEXR)"
             - CXX: /usr/bin/g++-12
-            - CXXFLAGS: "-O3 $(pkg-config --cflags sdl2 harfbuzz OpenEXR)"
 
         override-pull: |
           craftctl default
-          patch -p0 < "${SNAPCRAFT_PROJECT_DIR}/snap/local/patches/darktable-math_h.patch"
-          patch -p0 < "${SNAPCRAFT_PROJECT_DIR}/snap/local/patches/darktable-lens_cc.patch"
+          craftctl set version=$(git describe --always | sed -e 's/^release-//;s/-/+git/;y/-/./')
+          patch -p0 < "${CRAFT_PROJECT_DIR}/snap/local/patches/darktable-math_h.patch"
+          patch -p0 < "${CRAFT_PROJECT_DIR}/snap/local/patches/darktable-dttypes_h.patch"
         override-build: |
-          snapcraftctl build
-          PYTHONPATH=$SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages $SNAPCRAFT_PART_INSTALL/usr/bin/lensfun-update-data || echo No updates
-          if [ -d /var/lib/lensfun-updates/version_1/]; then
-            cp /var/lib/lensfun-updates/version_1/* $SNAPCRAFT_PART_INSTALL/usr/share/lensfun/version_1/
+          craftctl default
+          PYTHONPATH=${CRAFT_PART_INSTALL}/usr/lib/python3/dist-packages ${CRAFT_PART_INSTALL}/usr/bin/lensfun-update-data || echo No updates
+          if [ -d /var/lib/lensfun-updates/version_1/ ]; then
+            cp /var/lib/lensfun-updates/version_1/* ${CRAFT_PART_INSTALL}/usr/share/lensfun/version_1/
           fi
-
         after:
             - openexr
             - osmgpsmap
