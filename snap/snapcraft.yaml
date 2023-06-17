@@ -1,4 +1,5 @@
 name: darktable
+version: 4.4.0
 adopt-info: darktable
 
 grade: stable
@@ -9,6 +10,11 @@ compression: lzo
 architectures:
   - build-on: amd64
   - build-on: arm64
+
+lint:
+  ignore:
+    - library
+    - classic
 
 apps:
   darktable:
@@ -77,8 +83,9 @@ parts:
             - on amd64:
                 - intel-opencl-icd
     darktable:
+        source: https://github.com/darktable-org/darktable/releases/download/release-$SNAPCRAFT_PROJECT_VERSION/darktable-$SNAPCRAFT_PROJECT_VERSION.tar.xz
+        source-checksum: sha256/8887fc34abd97c4998b0888c3197e0c509d63bdeab2238906915319811f3b080
         plugin: cmake
-        source: https://github.com/darktable-org/darktable.git
         cmake-parameters:
             - -DCMAKE_BUILD_TYPE=RelWithDebInfo
             # Place the data alongside that coming from stage-packages (e.g. the lensfun database)
@@ -166,7 +173,6 @@ parts:
 
         override-pull: |
           craftctl default
-          craftctl set version=$(git describe --always | sed -e 's/^release-//;s/-/+git/;y/-/./')
           patch -p0 < "${CRAFT_PROJECT_DIR}/snap/local/patches/darktable-math_h.patch"
           patch -p0 < "${CRAFT_PROJECT_DIR}/snap/local/patches/darktable-dttypes_h.patch"
         override-build: |
