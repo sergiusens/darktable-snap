@@ -1,5 +1,5 @@
 name: darktable
-version: 4.4.1
+version: 4.4.2
 adopt-info: darktable
 
 grade: stable
@@ -84,7 +84,7 @@ parts:
                 - intel-opencl-icd
     darktable:
         source: https://github.com/darktable-org/darktable/releases/download/release-$SNAPCRAFT_PROJECT_VERSION/darktable-$SNAPCRAFT_PROJECT_VERSION.tar.xz
-        source-checksum: sha256/e043d38d2e8adb67af7690b12b535a40e8ec7bea05cfa8684db8b21a626e0f0d
+        source-checksum: sha256/c11d28434fdf2e9ce572b9b1f9bc4e64dcebf6148e25080b4c32eb51916cfa98
         plugin: cmake
         cmake-parameters:
             - -DCMAKE_BUILD_TYPE=RelWithDebInfo
