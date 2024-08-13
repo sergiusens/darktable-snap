@@ -2,9 +2,13 @@ name: snap
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - candidate
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+      - candidate
 
   workflow_dispatch:
 
