@@ -4,21 +4,20 @@ adopt-info: darktable
 
 grade: stable
 confinement: strict
-base: core22
+base: core24
 compression: lzo
 
-architectures:
-  - build-on: amd64
-  - build-on: arm64
+platforms:
+  amd64:
+  arm64:
 
 lint:
   ignore:
-    - library
     - classic
 
 apps:
   darktable:
-    command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
+    command: usr/bin/darktable --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
     extensions: [gnome]
     environment:
       GTK_USE_PORTAL: 0
@@ -32,7 +31,7 @@ apps:
       - network-bind
       - network-status
   cli:
-    command: usr/bin/darktable-cli --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
+    command: usr/bin/darktable-cli --datadir $SNAP/usr/share/darktable --moduledir $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/darktable --configdir $SNAP_USER_DATA --localedir $SNAP/usr/share/locale
     extensions: [gnome]
     environment:
       GTK_USE_PORTAL: 0
@@ -63,16 +62,16 @@ layout:
     bind: $SNAP/usr/include/clc
   /usr/lib/clc:
     bind: $SNAP/usr/lib/clc
-  /usr/lib/$CRAFT_ARCH_TRIPLET/gallium-pipe:
-    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gallium-pipe
-  /usr/lib/$CRAFT_ARCH_TRIPLET/intel-opencl:
-    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/intel-opencl
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/gallium-pipe:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/gallium-pipe
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/intel-opencl:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/intel-opencl
   /usr/share/git-core/templates:
     bind: $SNAP/usr/share/git-core/templates
 
 build-packages:
-    - gcc-12
-    - g++-12
+    - gcc
+    - g++
 
 parts:
     opencl:
@@ -96,7 +95,7 @@ parts:
             - -DBINARY_PACKAGE_BUILD=ON
             - -DCMAKE_INCLUDE_SYSTEM_FLAG_C="isystem"
             - -DCMAKE_INCLUDE_SYSTEM_FLAG_CXX="isystem"
-            - -DCMAKE_SYSTEM_PREFIX_PATH="${CRAFT_STAGE}/usr;/snap/gnome-42-2204-sdk/current/usr/;/usr"
+            - -DCMAKE_SYSTEM_PREFIX_PATH="${CRAFT_STAGE}/usr;/snap/gnome-46-2404-sdk/current/usr/;/usr"
             - -DCMAKE_VERBOSE_MAKEFILE=ON
             - -DCMAKE_CXX_FLAGS="-Wno-deprecated-register"
         parse-info:
@@ -104,26 +103,27 @@ parts:
         stage-packages:
             - git
             - libasn1-8-heimdal
-            - libavif13
+            - libavif16
             - libcurl3-gnutls
             - libexiv2-27
             - libgraphicsmagick-q16-3
             - libgssapi3-heimdal
             - libheif1
-            - libhcrypto4-heimdal
+            - libhcrypto5t64-heimdal
             - libheimbase1-heimdal
             - libheimntlm0-heimdal
             - libhx509-5-heimdal
             - libimage-exiftool-perl
             - libkrb5-26-heimdal
             - libgphoto2-6
-            - libldap-2.5-0
+            - libldap2
             - liblensfun-bin
             - liblensfun-data-v1
             - liblensfun1
             - libnghttp2-14
+            - libopenexr-3-1-30
             - libpugixml1v5
-            - libroken18-heimdal
+            - libroken19t64-heimdal
             - librtmp1
             - libsasl2-2
             - libssh-4
@@ -136,6 +136,7 @@ parts:
             - libgraphicsmagick1-dev
             - libheif-dev
             - liblensfun-dev
+            - libopenexr-dev
             - libopenjp2-7-dev
             - libpugixml-dev
             - libsdl2-dev
@@ -146,31 +147,11 @@ parts:
             - patch
             - pkg-config
             - xsltproc
-            # -- Missing jsonschema, problems in noiseprofiles.json might go unnoticed
-            # -- GMIC not found
-
-            # Disabled capabilities for now due to interfaces:
-            #
-            # Camera detection/tethering/importing doesn't work, with no denials.
-            # Need to investigate further before enabling this.
-            # - libgphoto2-dev
-            #
-            # Need to test with cups-control interface
-            # - libcups2-dev
-
-            # No colord interface
-            # - libcolord-dev
-            # - libcolord-gtk-dev
-
-        # stage-packages:
-            # - libilmbase24
-            # - libopenexr24
-            # - libpugixml1v5
 
         build-environment:
-            - LDFLAGS: "-L${CRAFT_STAGE}/usr/lib/${CRAFT_ARCH_TRIPLET} $(pkg-config --libs sdl2 harfbuzz gtk+-3.0 OpenEXR)"
-            - CC: /usr/bin/gcc-12
-            - CXX: /usr/bin/g++-12
+            - LDFLAGS: "-L${CRAFT_STAGE}/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR} $(pkg-config --libs sdl2 harfbuzz gtk+-3.0 OpenEXR)"
+            - CFLAGS: "-O3"
+            - CXXFLAGS: "-O3"
 
         override-pull: |
           craftctl default
@@ -183,24 +164,7 @@ parts:
             cp /var/lib/lensfun-updates/version_1/* ${CRAFT_PART_INSTALL}/usr/share/lensfun/version_1/
           fi
         after:
-            - openexr
             - osmgpsmap
-
-    openexr:
-        source: https://github.com/AcademySoftwareFoundation/openexr/archive/refs/tags/v3.1.3.tar.gz
-        source-checksum: sha256/6f70a624d1321319d8269a911c4032f24950cde52e76f46e9ecbebfcb762f28c
-        plugin: cmake
-        cmake-parameters:
-            - -DCMAKE_INSTALL_PREFIX=/usr
-            - -DDOCS=OFF
-            - -DOPENEXR_INSTALL_EXAMPLES=OFF
-            - -DOPENEXR_BUILD_TOOLS=OFF
-            - -DOPENEXR_INSTALL_TOOLS=OFF
-        build-environment:
-            - CC: /usr/bin/gcc-12
-            - CFLAGS: "-O3"
-            - CXX: /usr/bin/g++-12
-            - CXXFLAGS: "-O3"
 
     osmgpsmap:
         source: https://github.com/nzjrs/osm-gps-map/releases/download/1.2.0/osm-gps-map-1.2.0.tar.gz
@@ -214,8 +178,6 @@ parts:
             - libssl-dev
             - libsoup2.4-dev
         build-environment:
-            - CC: /usr/bin/gcc-12
             - CFLAGS: "-O3"
-            - CXX: /usr/bin/g++-12
             - CXXFLAGS: "-O3"
 
