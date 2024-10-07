@@ -15,11 +15,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build snapcraft snap
       id: build-snapcraft
-      uses: snapcore/action-build@v1
+      uses: canonical/action-build@v1
       with:
-        snapcraft-channel: 7.x/candidate
+        snapcraft-channel: 8.x/candidate
     - name: Upload snapcraft snap
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: snap
         path: ${{ steps.build-snapcraft.outputs.snap }}
