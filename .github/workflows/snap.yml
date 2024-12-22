@@ -16,14 +16,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Build snapcraft snap
       id: build-snapcraft
       uses: snapcore/action-build@v1
       with:
         snapcraft-channel: 8.x/candidate
     - name: Upload snapcraft snap
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: snap
         path: ${{ steps.build-snapcraft.outputs.snap }}
