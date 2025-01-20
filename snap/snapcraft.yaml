@@ -181,6 +181,8 @@ parts:
         autotools-configure-parameters:
             - --prefix=/usr
             - --enable-introspection=no
+        stage-packages:
+            - libsoup-2.4-1
         build-packages:
             - libcurl4-gnutls-dev
             - libssl-dev
