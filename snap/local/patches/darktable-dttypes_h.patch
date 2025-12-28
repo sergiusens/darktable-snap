@@ -1,15 +1,15 @@
---- src/common/dttypes.h.orig	2023-06-04 14:09:23.015526885 +0000
-+++ src/common/dttypes.h	2023-06-04 14:22:36.691884797 +0000
-@@ -23,7 +23,12 @@
- //#define NO_COLORMATRIX_NAN
+--- src/common/dttypes.h.orig	2025-12-25 12:29:42.799260240 -0300
++++ src/common/dttypes.h	2025-12-25 12:31:05.501891369 -0300
+@@ -28,7 +28,12 @@
  
  #include <float.h>
+ #include <gmodule.h>
 +#ifdef __cplusplus
 +#include <cmath>
 +using std::isfinite;
 +#else
  #include <math.h>
 +#endif
+ #include <stdint.h>
  
  // When included by a C++ file, restrict qualifiers are not allowed
- #ifdef __cplusplus
