@@ -19,6 +19,7 @@ GenericName[sk]=Virtuálny presvetľovací pult a fotokomora
 GenericName[sl]=Virtualna osvetljena miza in temnica
 GenericName[sq]=Fototekë dhe Dhomë e Errët Virtuale
 GenericName[sv]=Virtuellt ljusbord och mörkerrum
+GenericName[pl]=Wirtualna ciemnia i podświetlany stół
 Comment=Organize and develop images from digital cameras
 Comment[ca]=Organitza i revela imatges de càmeres digitals
 Comment[cs]=Správa a vyvolávání snímků z digitálních fotoaparátů
@@ -38,6 +39,7 @@ Comment[sk]=Organizuje a vyvoláva obrázky z digitálnych fotoaprátov
 Comment[sl]=Organizira in razvija slike digitalnih kamer
 Comment[sq]=organizoni dhe zhvilloni imazhet nga fotoaparatet
 Comment[sv]=Organisera och utveckla bilder från digitalkameror
+Comment[pl]=Katalogowanie i wywoływanie cyfrowych zdjęć
 
 X-GNOME-FullName=Darktable Photo Workflow Software
 
@@ -65,6 +67,7 @@ Keywords[sk]=grafika;fotografovanie;fotografie;raw;surový;
 Keywords[sl]=grafika;fotografije;surove;
 Keywords[sq]=graphics;photography;raw;
 Keywords[sv]=grafik;fotografi;rå;
+Keywords[pl]=grafika;fotgrafia;raw;zdjęcia
 
 Exec=darktable %U
 TryExec=darktable
